@@ -55,11 +55,13 @@ app.post('/register', (req, res)=>{
                                 }
                                 
                                 const tokenAuth = jwt.sign({
+                                    user_id = userId,
                                     username:username,
                                     role:role
                                 }, accessTokenSecret, {expiresIn: '2h'});
 
                                 const refreshToken = jwt.sign({
+                                    user_id = userId,
                                     username:username,
                                     role:role
                                 }, refreshTokenSecret);
@@ -93,12 +95,12 @@ app.post('/login', (req, res)=>{
                 error: err
             });
         } else {
-            let id = -1;
+            let userId = -1;
             let avatar = ""
             users.forEach(user=>{
                 if(user.username == username){
                     if (user.password == password){
-                        id = user.id;
+                        userId = user.id;
                         avatar = user.avatar
                     } else {
                         res.status(500).send({
@@ -108,7 +110,7 @@ app.post('/login', (req, res)=>{
                     }
                 }
             });
-            if(id != -1){
+            if(userId != -1){
                 crudUs.getProfes((profes, err)=>{
                     if(err){
                         res.status(500).send({
@@ -116,18 +118,20 @@ app.post('/login', (req, res)=>{
                             error: err
                         });
                     }
-                    if(profes.find(profe => profe.id == id)){
+                    if(profes.find(profe => profe.id == userId)){
                         var role = "profe";
                     } else {
                         var role = "alumne";
                     }
 
                     const tokenAuth = jwt.sign({
+                        user_id: userId,
                         username:username,
                         role:role
                     }, accessTokenSecret, {expiresIn: '2h'});
 
                     const refreshToken = jwt.sign({
+                        user_id: userId,
                         username:username,
                         role:role
                     }, refreshTokenSecret);
