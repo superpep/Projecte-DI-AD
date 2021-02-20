@@ -55,13 +55,13 @@ app.post('/register', (req, res)=>{
                                 }
                                 
                                 const tokenAuth = jwt.sign({
-                                    user_id = userId,
+                                    user_id:userId,
                                     username:username,
                                     role:role
                                 }, accessTokenSecret, {expiresIn: '2h'});
 
                                 const refreshToken = jwt.sign({
-                                    user_id = userId,
+                                    user_id: userId,
                                     username:username,
                                     role:role
                                 }, refreshTokenSecret);
