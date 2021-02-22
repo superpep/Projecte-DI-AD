@@ -6,7 +6,7 @@
       </div>
       <div class="row">
         <q-card square bordered class="q-pa-lg shadow-1">
-          <q-form class="q-gutter-md" @submit="validateForm" action="/" method="post">
+          <q-form class="q-gutter-md" @submit.prevent="onSubmit">
             <q-card-section>
               <q-input square filled clearable v-model="name" type="text" label="Nom complet" />
               <q-input square filled clearable :class="{ 'bg-red' : dni.error }" v-model="dni.string" type="text" label="DNI" />
@@ -42,16 +42,16 @@ export default {
     }
   },
   methods: {
-    validateForm () {
+    onSubmit () {
       if (!(this.name && this.dni.string && this.username && this.password.string)) { // SI S'HAN INTRODUÏT TOTS ELS CAMPS
         this.$q.notify('Tots els camps son obligatoris')
         return false
       }
       this.validated = true
-      if (this.dni.string.length !== 9) { // Si el DNI NO té 9 digits
+      if (!this.dni.string.match('^[0-9]{8,8}[A-Za-z]$')) { // Si el DNI NO iguala el regex
         this.$q.notify({
           group: false,
-          message: 'El DNI ha de tindre 9 caràcters'
+          message: 'El DNI no és vàlid.'
         })
         this.dni.error = true
         this.validated = false
