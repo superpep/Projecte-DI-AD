@@ -48,7 +48,7 @@ export default {
         return false
       }
       this.validated = true
-      if (!this.dni.string.match('^[0-9]{8,8}[A-Za-z]$')) { // Si el DNI NO iguala el regex
+      if (!this.dni.string.match('^[0-9]{8,8}[A-Z]$')) { // Si el DNI NO iguala el regex
         this.$q.notify({
           group: false,
           message: 'El DNI no és vàlid.'
