@@ -16,20 +16,20 @@ const refreshTokens = [];
 app.post('/register', (req, res)=>{
     const {dni, username, full_name, avatar, password} = req.body;
     let crudUs = new crudUsers();
-    crudUs.getAllUsers((users, err)=>{
+    crudUs.getUserByUsername(username, (results, err)=>{
         if(err){ // Tenim en compte si ha habut un error a la BD
             res.status(500).send({
                 ok: false,
                 error: err
             });
         } else{ // Si no hi ha error, comprovem si l'usuari ja està a la BD o no
-            if(users.find(user => user.username == username)){ // Si està, retornem error.
+            if(results.length){ // Si està, retornem error.
                 res.status(400).send({
                     ok: false,
                     error: "L'usuari ja està afegit."
                 });
             } else{ // Si l'usuari encara no està a la BD...
-                crudUs.getProfesDNI((dnis, err)=>{ // Agafem els dnis de professors per veure si l'usuari és un professor
+                crudUs.checkDNIProfe(dni, (resultDNI, err)=>{ // Agafem els dnis de professors per veure si l'usuari és un professor
                     if(err){ // Si mysql ens dona error, el retornem
                         res.status(500).send({
                             ok: false,
@@ -44,7 +44,7 @@ app.post('/register', (req, res)=>{
                                 });
                             } else{ // Si l'inserció en la taula d'usuaris s'ha dut a terme...
                                 let userId = results.insertId;
-                                if(dnis.find(dnis => dnis.dni == dni)){ // Comprovem, per tant, si és profe o no
+                                if(resultDNI.length){ // Comprovem, per tant, si és profe o no
                                     crudUs.insertProfe(userId); // Si és, insertem l'id del nou usuari a la taula de professors
                                     var role = 'profe'
                                 } else{
@@ -87,51 +87,37 @@ app.post('/register', (req, res)=>{
 app.post('/login', (req, res)=>{
     const {username, password} = req.body;
     let crudUs = new crudUsers(); 
-    crudUs.getAllUsers((err,users)=>{    
+    crudUs.getUserAuth(username, password, (err,user)=>{    
         if(err){ // Tenim en compte si ha habut un error a la BD
-            res.status(500).send({
+            res.status(401).send({
                 ok: false,
                 error: err
             });
         } else {
-            let userId = -1;
             let avatar = ""
-            users.forEach(user=>{
-                if(user.username == username){
-                    if (user.password == password){ // Si la contrasenya de l'usuari és igual a la contrasenya que ens han enviat..
-                        userId = user.id;
-                        avatar = user.avatar
-                    } else { // Si no, significa que l'autenticació falla
-                        res.status(401).send({ // 401: Unauthorized
-                            ok: false,
-                            error: "Error en la contrasenya"
-                        });
-                    }
-                }
-            });
-            if(userId != -1){ // Si el id d'usuari ha sigut actualitzat...
-                crudUs.getProfes((profes, err)=>{ // Agafem els profes per a veure si l'usuari és professor
+            if(user.id){ // Si el id d'usuari ha sigut actualitzat...
+                crudUs.getProfeById(user.id, (result, err)=>{ // Agafem els profes per a veure si l'usuari és professor
                     if(err){ // Si mysql ens retorna un error, el retornem nosaltres
                         res.status(500).send({
                             ok: false,
                             error: err
                         });
                     }
-                    if(profes.find(profe => profe.id == userId)){ // Busquem algún profe que tinga el mateix identificador que l'usuari
+                    if(result.length){ // Si el length és major que 0, significa que ha havut un match
                         var role = "profe"; 
-                    } else { // Si no el trovem, significa que l'usuari és alumne
+                    } else { // Si no, significa que l'usuari és alumne
                         var role = "alumne";
                     }
 
                     // CREEM ELS TOKENS
                     const tokenAuth = jwt.sign({
-                        user_id: userId,
+                        user_id: user.id,
                         username:username,
                         role:role
                     }, accessTokenSecret, {expiresIn: '2h'});
 
                     const refreshToken = jwt.sign({
-                        user_id: userId,
+                        user_id: user.id,
                         username:username,
                         role:role
                     }, refreshTokenSecret);
@@ -147,10 +133,10 @@ app.post('/login', (req, res)=>{
                         }
                     });
                 });
-            } else { // En cas de que no s'haja actualitzat l'id d'usuari, significa que no s'ha trovat ningún usuar amb el nom proporcionat
+            } else { // Si ve per aci, el login és incorrecte, no hi ha match amb l'usuari i contrasenya
                 res.status(401).send({
                     ok: false,
-                    error: "L'usuari no existeix"
+                    error: "Login incorrecte"
                 });
             }
         }

@@ -4,55 +4,67 @@ const User = require('./users');
 module.exports = class crudUsers{
     mydb = new db();
     constructor(){}
+
+    getUserAuth(username, password, callback){
+        let con = this.mydb.getConnection();
+        let sql = "SELECT id, avatar FROM users WHERE username = ? AND password = ?";
+        con.query(sql, [username, password], function(err, results){
+            if(err){
+                console.error(err);
+            } else{
+                con.end();
+                if(results.length){
+                    var user = {
+                        id: results[0].id,
+                        avatar: results[0].avatar
+                    }
+                } else{
+                    var user = {
+                        id: null,
+                        avatar: null
+                    }
+                }
+            }
+            callback(err, user);
+        });
+    }
     
-    getAllUsers(callback){
+    getUserByUsername(username, callback){
         let con = this.mydb.getConnection();
-        let sql = "SELECT id, username, password, full_name, avatar FROM users";
-        con.query(sql, function(err, results){
+        let sql = "SELECT * FROM users WHERE username = ?";
+        con.query(sql, [username], function(err, results){
             if(err){
                 console.error(err);
             } else{
                 con.end();
-                var users = [];
-                results.forEach(user => {
-                    users.push(new User(user.id, user.username, user.password, user.full_name, user.avatar));
-                });
             }
-            callback(err, users);
+            callback(results, err);
+        });
+    }
+    
+    getProfeById(id, callback){
+        let con = this.mydb.getConnection();
+        let sql = "SELECT * FROM professor WHERE id_professor = ?";
+        con.query(sql, [id], function(err, results){
+            if(err){
+                console.error(err);
+            } else{
+                con.end();
+            }
+            callback(results, err);
         });
     }
 
-    getProfesDNI(callback){
+    checkDNIProfe(dni, callback){
         let con = this.mydb.getConnection();
-        let sql = "SELECT dni FROM dni_profe";
-        con.query(sql, function(err, results){
+        let sql = "SELECT * FROM dni_profe WHERE dni = ?";
+        con.query(sql, [dni], function(err, results){
             if(err){
                 console.error(err);
             } else{
                 con.end();
-                var DNIs = [];
-                results.forEach(ele => {
-                    DNIs.push(ele.dni);
-                });
             }
-            callback(DNIs, err);
-        });
-    }
-
-    getProfes(callback){
-        let con = this.mydb.getConnection();
-        let sql = "SELECT * FROM professor";
-        con.query(sql, function(err, results){
-            if(err){
-                console.error(err);
-            } else{
-                con.end();
-                var profes = [];
-                results.forEach(profe => {
-                    profes.push(profe);
-                });
-            }
-            callback(profes, err);
+            callback(results, err);
         });
     }
 
@@ -69,29 +81,27 @@ module.exports = class crudUsers{
         });
     }
 
-    insertProfe(id, callback){
+    insertProfe(id){
         let con = this.mydb.getConnection();
-        let sql = "INSERT INTO professor(id) VALUES(?)";
+        let sql = "INSERT INTO professor(id_professor) VALUES(?)";
         con.query(sql, [id], (err, results)=>{
             if(err){
                 console.error(err);
             } else{
                 con.end();
             }
-            callback(err, results);
         });
     }
 
-    insertAlumne(id, callback){
+    insertAlumne(id){
         let con = this.mydb.getConnection();
-        let sql = "INSERT INTO alumne(id) VALUES(?)";
+        let sql = "INSERT INTO alumne(id_alumne) VALUES(?)";
         con.query(sql, [id], (err, results)=>{
             if(err){
                 console.error(err);
             } else{
                 con.end();
             }
-            callback(err, results);
         });
     }
 };
