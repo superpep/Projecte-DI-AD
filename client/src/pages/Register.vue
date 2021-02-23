@@ -5,15 +5,67 @@
         <h5 class="text-h5 text-white q-my-md">Registre</h5>
       </div>
       <div class="row">
-        <q-card square bordered class="q-pa-lg shadow-1">
-          <q-form class="q-gutter-md" @submit.prevent="onSubmit">
+        <q-card square bordered class="q-pa-sm shadow-1">
+          <q-form class="q-gutter-md" ref="myForm" @submit.prevent="onSubmit" greedy>
             <q-card-section>
-              <q-input square filled clearable v-model="name" type="text" label="Nom complet" />
-              <q-input square filled clearable :class="{ 'bg-red' : dni.error }" v-model="dni.string" type="text" label="DNI" />
-              <q-input square filled clearable v-model="username" type="text" label="Usuari" />
-              <q-input square filled clearable :class="{ 'bg-red' : password.error }" v-model="password.string" type="password" label="Contrasenya" />
+              <q-input
+              square
+              filled
+              clearable
+              v-model="full_name"
+              type="text"
+              label="Nom complet"
+              :rules="[
+                val => val.split(' ').length >= 2 || 'Has de ficar, com a mínim, el primer cognom',
+                val => val.split(' ')[1].length >= 1 || 'Els cognoms no poden ser espais en blanc'
+              ]"/>
+              <q-input
+              square
+              class="q-pt-md"
+              filled
+              clearable
+              ref="input"
+              v-model="dni"
+              type="text"
+              label="DNI"
+              :rules="[
+                val => new RegExp('^[0-9]{8,8}[A-Z]$').test(this.dni) || 'El DNI ha de ser 00000000X'
+              ]"/>
+              <q-input
+              square
+              class="q-pt-md"
+              filled
+              clearable
+              v-model="username"
+              type="text"
+              label="Usuari"
+              :rules="[
+                val => val.length >= 3 || 'El nom d\'usuari ha de tindre com a mínim tres caràcters'
+              ]"/>
+              <q-input
+              class="q-pt-md"
+              square
+              filled
+              clearable
+              v-model="password"
+              type="password"
+              label="Contrasenya"
+              :rules="[
+                val => val.length > 8 || 'La contrasenya ha de tindre com a mínim 8 caràcers'
+              ]"/>
+              <q-input
+              class="q-pt-md"
+              square
+              filled
+              clearable
+              v-model="repeatPass"
+              type="password"
+              label="Repetir contrasenya"
+              :rules="[
+                val => val === this.password || 'Les contrasenyes no coincideixen'
+              ]"/>
             </q-card-section>
-            <q-card-actions class="q-px-md">
+            <q-card-actions class="q-pt-xs">
               <q-btn unelevated color="secondary" type="submit" size="lg" class="full-width" label="Registra't" />
             </q-card-actions>
           </q-form>
@@ -28,47 +80,20 @@ export default {
   name: 'Register',
   data () {
     return {
-      name: null,
-      dni: {
-        error: false,
-        string: null
-      },
-      username: null,
-      password: {
-        error: false,
-        string: null
-      },
-      validated: null
+      full_name: '',
+      dni: '',
+      username: '',
+      password: '',
+      repeatPass: ''
     }
   },
   methods: {
     onSubmit () {
-      if (!(this.name && this.dni.string && this.username && this.password.string)) { // SI S'HAN INTRODUÏT TOTS ELS CAMPS
-        this.$q.notify('Tots els camps son obligatoris')
-        return false
-      }
-      this.validated = true
-      if (!this.dni.string.match('^[0-9]{8,8}[A-Z]$')) { // Si el DNI NO iguala el regex
-        this.$q.notify({
-          group: false,
-          message: 'El DNI no és vàlid.'
-        })
-        this.dni.error = true
-        this.validated = false
-      } else {
-        this.dni.error = false
-      }
-      if (this.password.string.length < 8) { // Si la contrasenya té menys de 8 carácters
-        this.$q.notify({
-          group: false,
-          message: 'La contrasenya no pot ser menor a 9 caràcters'
-        })
-        this.password.error = true
-        this.validated = false
-      } else {
-        this.password.error = false
-      }
-      return this.validated
+      this.$refs.myForm.validate().then(success => {
+        if (success) {
+          // enviem info al server
+        }
+      })
     }
   }
 }
