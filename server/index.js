@@ -1,18 +1,17 @@
 const express = require('express');
 const crudUsers = require('./db/crudUsers')
+const crudNotes = require('./db/crudNotes')
+const crudAssignatures = require('./db/crudAssignatures')
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
-
+const jwtAuth = require('./auth/authenticate')
+const PORT = require('./lib/constants').PORT
 
 let app = express();
 app.use(bodyParser.json());
-app.listen(8080, ()=> {
-    console.log('Escolte al port 8000');
+app.listen(PORT, ()=> {
+    console.log('Escolte al port '+PORT);
 });
-
-const accessTokenSecret = '?;>+Z@^Jw{O~,2*h)TrV1$?0/t_lsb';
-const refreshTokenSecret = '*g">j`{yX,D1UI7)laqbNEWzEr26HO';
-const refreshTokens = [];
 app.post('/register', (req, res)=>{
     const {dni, username, full_name, avatar, password} = req.body;
     let crudUs = new crudUsers();
@@ -57,15 +56,15 @@ app.post('/register', (req, res)=>{
                                     user_id:userId,
                                     username:username,
                                     role:role
-                                }, accessTokenSecret, {expiresIn: '2h'});
+                                }, jwtAuth.accessTokenSecret, {expiresIn: '2h'});
 
                                 const refreshToken = jwt.sign({
                                     user_id: userId,
                                     username:username,
                                     role:role
-                                }, refreshTokenSecret);
+                                }, jwtAuth.refreshTokenSecret);
 
-                                refreshTokens.push(refreshToken);
+                                jwtAuth.refreshTokens.push(refreshToken);
                                 
                                 // Retornem les dades
                                 res.status(200).send({
@@ -114,15 +113,15 @@ app.post('/login', (req, res)=>{
                         user_id: user.id,
                         username:username,
                         role:role
-                    }, accessTokenSecret, {expiresIn: '2h'});
+                    }, jwtAuth.accessTokenSecret, {expiresIn: '2h'});
 
                     const refreshToken = jwt.sign({
                         user_id: user.id,
                         username:username,
                         role:role
-                    }, refreshTokenSecret);
+                    }, jwtAuth.refreshTokenSecret);
 
-                    refreshTokens.push(refreshToken);
+                    jwtAuth.refreshTokens.push(refreshToken);
 
                     res.status(200).send({ // Retronem les dades correctament
                         ok:true,
@@ -142,3 +141,106 @@ app.post('/login', (req, res)=>{
         }
     })
 });
+
+// Estaría bé fer un enrutador per a notes i móduls
+app.get('/notes', jwtAuth.authenticateJWT, jwtAuth.authorizeAlumne, (req, res)=>{
+    const user = req.user;
+    crudNot = new crudNotes();
+    crudNot.getNotesFromUser(user.user_id, (err, result)=>{
+        if(err){
+            res.status(400).send({
+                ok: false,
+                error: err
+            })
+        } else {
+            res.status(200).send({
+                ok: true,
+                data: result
+            })
+        }
+    });
+});
+
+app.get('/notes/:id', jwtAuth.authenticateJWT, jwtAuth.authorizeAlumne, (req, res)=>{
+    crudNot = new crudNotes();
+    crudNot.getNotesByFromAssig(req.params.id, req.user.user_id, (err, result)=>{
+        if(err){
+            res.status(400).send({
+                ok: false,
+                error: err
+            })
+        } else {
+            res.status(200).send({
+                ok: true,
+                data: result
+            })
+        }
+    });
+})
+
+app.get('/assignatura/:id', jwtAuth.authenticateJWT, (req, res)=>{
+    crudAssig = new crudAssignatures();
+    crudAssig.getAssigById(req.params.id, (err, result)=>{
+        if(err){
+            res.status(400).send({
+                ok: false,
+                error: err
+            })
+        } else {
+            res.status(200).send({
+                ok: true,
+                data: result
+            })
+        }
+    })
+})
+
+app.get('/moduls', jwtAuth.authenticateJWT, jwtAuth.authorizeProfe, (req, res)=>{
+    crudAssig = new crudAssignatures();
+    crudAssig.getProfesAssigs(req.user.user_id, (err, result)=>{
+        if(err){
+            res.status(400).send({
+                ok: false,
+                error: err
+            })
+        } else {
+            res.status(200).send({
+                ok: true,
+                data: result
+            })
+        }
+    });
+});
+
+app.get('/moduls/:id', jwtAuth.authenticateJWT, jwtAuth.authorizeProfe, (req, res)=>{
+    crudNot = new crudNotes();
+    crudNot.getNotesByAssigAndProfeId(req.params.id, req.user.user_id, (err, result)=>{
+        if(err){
+            res.status(400).send({
+                ok: false,
+                error: err
+            })
+        } else {
+            res.status(200).send({
+                ok: true,
+                data: result
+            })
+        }
+    });
+});
+
+app.put('/moduls/:id_assig/:id_alu', jwtAuth.authenticateJWT, jwtAuth.authorizeProfe, (req, res)=>{
+    crudNot = new crudNotes();
+    crudNot.setNotesToAlu(req.params.id_assig, req.params.id_alu, req.user.user_id, req.body.nota, (err, changes)=>{
+        if(err){
+            res.status(400).send({
+                ok: false,
+                error: err
+            })
+        } else {
+            res.status(200).send({
+                ok: changes.affectedRows > 0,
+            })
+        }
+    })
+})
