@@ -11,6 +11,14 @@ let app = express();
 app.use(bodyParser.json());
 app.use('/moduls', moduls);
 app.use('/notes', notes);
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  next();
+});
 app.listen(PORT, ()=> {
     console.log('Escolte al port '+PORT);
 });
@@ -95,7 +103,6 @@ app.post('/login', (req, res)=>{
                 error: err
             });
         } else {
-            let avatar = ""
             if(user.id){ // Si el id d'usuari ha sigut actualitzat...
                 crudUs.getProfeById(user.id, (result, err)=>{ // Agafem els profes per a veure si l'usuari és professor
                     if(err){ // Si mysql ens retorna un error, el retornem nosaltres
@@ -130,7 +137,7 @@ app.post('/login', (req, res)=>{
                         data: {
                             tokenAuth: tokenAuth,
                             refreshToken: refreshToken,
-                            avatar: avatar
+                            avatar: user.avatar
                         }
                     });
                 });
