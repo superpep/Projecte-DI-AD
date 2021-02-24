@@ -95,10 +95,8 @@ module.exports = class crudNotes{
         con.query(sql, [nota, aluId, assigId, profeId], (err, results)=>{
             if(err){
                 console.error(err);
-            } else {
-                console.log(results)
             }
-            callback(err, results)
+            callback(err, results);
         })
     }
 }
