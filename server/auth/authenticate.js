@@ -40,4 +40,4 @@ function authorizeProfe(req, res, next){
     }
 }
 
-module.exports = {accessTokenSecret, refreshTokenSecret, refreshTokens, authenticateJWT, authorizeAlumne, authorizeProfe}
+module.exports = {accessTokenSecret, refreshTokenSecret, refreshTokens, authenticateJWT, authorizeAlumne, authorizeProfe, jwt}
