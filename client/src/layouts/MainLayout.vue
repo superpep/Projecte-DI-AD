@@ -8,7 +8,7 @@
           round
           icon="menu"
           aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
+          @click="drawerState = !drawerState"
         />
 
         <q-toolbar-title>
@@ -22,7 +22,7 @@
     </q-header>
 
     <q-drawer
-      v-model="leftDrawerOpen"
+      v-model="drawerState"
       show-if-above
       bordered
       content-class="bg-grey-1"
@@ -32,7 +32,13 @@
           header
           class="text-grey-8"
         >
+        Menú
         </q-item-label>
+        <div v-if="avatar" align="center">
+          <q-avatar size="56px" class="q-mb-sm" align="center">
+            <img :src="avatar">
+          </q-avatar>
+        </div>
         <EssentialLink
           v-for="link in getLinks"
           :key="link.title"
@@ -51,18 +57,33 @@
 import { date } from 'quasar'
 import EssentialLink from 'components/EssentialLink.vue'
 
-const linksData = [
+const notLoggedData = [
   {
     title: 'Login',
     caption: 'Logueja\'t',
     icon: 'login',
-    link: '#'
+    link: '#/login'
+  }
+]
+const foreverData = {
+  title: 'About',
+  caption: 'Informació',
+  icon: 'info',
+  link: '#/about'
+}
+
+const loggedData = [
+  {
+    title: 'Notes',
+    caption: 'Veure notes',
+    icon: 'grade',
+    link: '#/notes'
   },
   {
-    title: 'About',
-    caption: 'Informació',
-    icon: 'info',
-    link: '#/about'
+    title: 'Logout',
+    caption: 'Desconectar-se',
+    icon: 'logout',
+    link: '#/logout'
   }
 ]
 
@@ -85,7 +106,30 @@ export default {
   },
   computed: {
     getLinks () {
-      return linksData.filter(e => (e.title !== 'Login' || !this.logged))
+      var newLinks = [foreverData]
+      if (this.$store.state.showcase.user.token) {
+        loggedData.forEach(ele => {
+          newLinks.push(ele)
+        })
+      } else {
+        notLoggedData.forEach(ele => {
+          newLinks.push(ele)
+        })
+      }
+      return newLinks
+    },
+    avatar: {
+      get () {
+        return this.$store.state.showcase.user.avatar
+      }
+    },
+    drawerState: {
+      get () {
+        return this.$store.state.showcase.drawerState
+      },
+      set (val) {
+        this.$store.commit('showcase/updateDrawerState', val)
+      }
     }
   }
 }
