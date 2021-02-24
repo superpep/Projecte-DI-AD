@@ -40,7 +40,8 @@
               type="text"
               label="Usuari"
               :rules="[
-                val => val.length >= 3 || 'El nom d\'usuari ha de tindre com a mínim tres caràcters'
+                val => val.length >= 3 || 'El nom d\'usuari ha de tindre com a mínim tres caràcters',
+                val => val.split(' ').length == 1 || 'El nom d\'usuari no pot contindre espais',
               ]"/>
               <q-input
               class="q-pt-md"
@@ -76,6 +77,7 @@
 </template>
 
 <script>
+const crypto = require('crypto')
 export default {
   name: 'Register',
   data () {
@@ -91,7 +93,25 @@ export default {
     onSubmit () {
       this.$refs.myForm.validate().then(success => {
         if (success) {
-          // enviem info al server
+          this.$store.dispatch('showcase/register', {
+            username: this.username,
+            password: crypto.createHash('md5').update(this.password).digest('hex'),
+            full_name: this.full_name,
+            dni: this.dni
+          })
+            .then(res => {
+              this.$q.notify({
+                type: 'positive',
+                message: 'Registrat correctament'
+              })
+              this.$router.push('/')
+            })
+            .catch(err => {
+              this.$q.notify({
+                type: 'negative',
+                message: err * ' a '
+              })
+            })
         }
       })
     }
