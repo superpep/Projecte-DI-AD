@@ -6,7 +6,8 @@ export default function () {
       id: null,
       role: null,
       avatar: null,
-      token: null
+      token: null,
+      assignatures: []
     }
   }
 }

@@ -8,12 +8,11 @@ export function register ({ commit }, form) {
   return new Promise((resolve, reject) => {
     api.post('/register', form)
       .then(response => {
-        console.log(response.data)
         commit('updateLoggedUser', response.data.data)
         resolve()
       })
       .catch((err) => {
-        reject(err)
+        reject(err.toString())
       })
   })
 }
@@ -25,7 +24,22 @@ export function login ({ commit }, payload) {
         resolve()
       })
       .catch((err) => {
-        reject(err)
+        reject(err.toString())
+      })
+  })
+}
+export function logout ({ commit }) {
+  commit('logout')
+}
+export function getAssigs ({ commit }, direccio) {
+  return new Promise((resolve, reject) => {
+    api.get('/' + direccio)
+      .then((response) => {
+        commit('updateNotes', response.data.data)
+        resolve()
+      })
+      .catch((err) => {
+        reject(err.toString())
       })
   })
 }

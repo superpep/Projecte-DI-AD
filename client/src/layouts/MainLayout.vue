@@ -34,7 +34,7 @@
         >
         Menú
         </q-item-label>
-        <div align="center">
+        <div v-if="userLogged" align="center">
           <q-avatar v-if="avatar" size="56px" class="q-mb-sm" align="center">
             <img :src="avatar">
           </q-avatar>
@@ -110,7 +110,7 @@ export default {
   computed: {
     getLinks () {
       var newLinks = []
-      if (this.$store.state.showcase.user.token) {
+      if (this.userLogged) {
         loggedData.forEach(ele => {
           newLinks.push(ele)
         })
@@ -125,6 +125,11 @@ export default {
     avatar: {
       get () {
         return this.$store.state.showcase.user.avatar
+      }
+    },
+    userLogged: {
+      get () {
+        return this.$store.state.showcase.user.token != null
       }
     },
     drawerState: {

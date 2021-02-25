@@ -18,5 +18,19 @@ export const updateLoggedUser = (state, data) => {
     token: data.tokenAuth
   }
   api.defaults.headers.common.Authorization = 'Bearer ' + data.tokenAuth
-  console.log(user)
+}
+
+export const logout = (state) => {
+  state.user = {
+    username: null,
+    id: null,
+    role: null,
+    avatar: null,
+    token: null
+  }
+  api.defaults.headers.common.Authorization = null
+}
+
+export const updateNotes = (state, data) => {
+  state.user.assignatures = data
 }
