@@ -10,9 +10,9 @@ const cors = require('cors')
 
 let app = express();
 app.use(bodyParser.json());
+app.use(cors());
 app.use('/moduls', moduls);
 app.use('/notes', notes);
-app.use(cors());
 app.listen(PORT, ()=> {
     console.log('Escolte al port '+PORT);
 });
