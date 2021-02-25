@@ -34,9 +34,12 @@
         >
         Menú
         </q-item-label>
-        <div v-if="avatar" align="center">
-          <q-avatar size="56px" class="q-mb-sm" align="center">
+        <div align="center">
+          <q-avatar v-if="avatar" size="56px" class="q-mb-sm" align="center">
             <img :src="avatar">
+          </q-avatar>
+          <q-avatar v-else size="56px" class="q-mb-sm" align="center">
+            <img src="https://cdn.quasar.dev/img/avatar.png">
           </q-avatar>
         </div>
         <EssentialLink
@@ -106,7 +109,7 @@ export default {
   },
   computed: {
     getLinks () {
-      var newLinks = [foreverData]
+      var newLinks = []
       if (this.$store.state.showcase.user.token) {
         loggedData.forEach(ele => {
           newLinks.push(ele)
@@ -116,6 +119,7 @@ export default {
           newLinks.push(ele)
         })
       }
+      newLinks.push(foreverData)
       return newLinks
     },
     avatar: {
