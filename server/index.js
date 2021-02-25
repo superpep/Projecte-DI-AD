@@ -6,19 +6,13 @@ const jwtAuth = require('./auth/authenticate')
 const moduls = require(__dirname + '/routes/moduls');
 const notes = require(__dirname + '/routes/notes');
 const PORT = require('./lib/constants').PORT
+const cors = require('cors')
 
 let app = express();
 app.use(bodyParser.json());
 app.use('/moduls', moduls);
 app.use('/notes', notes);
-app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-  );
-  next();
-});
+app.use(cors());
 app.listen(PORT, ()=> {
     console.log('Escolte al port '+PORT);
 });
