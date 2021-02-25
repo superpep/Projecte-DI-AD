@@ -1,5 +1,6 @@
 const express = require('express');
 const crudNotes = require('../db/crudNotes');
+const crudAssignatures = require('../db/crudAssignatures')
 let jwtAuth = require('../auth/authenticate')
 let router = express.Router();
 
