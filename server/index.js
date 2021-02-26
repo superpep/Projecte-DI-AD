@@ -3,6 +3,7 @@ const crudUsers = require('./db/crudUsers')
 const crudAssignatures = require('./db/crudAssignatures')
 const bodyParser = require('body-parser');
 const jwtAuth = require('./auth/authenticate')
+const missatgeria = require(__dirname + '/routes/missatgeria');
 const moduls = require(__dirname + '/routes/moduls');
 const notes = require(__dirname + '/routes/notes');
 const PORT = require('./lib/constants').PORT
@@ -11,6 +12,7 @@ const cors = require('cors')
 let app = express();
 app.use(bodyParser.json());
 app.use(cors());
+app.use('/missatgeria', missatgeria);
 app.use('/moduls', moduls);
 app.use('/notes', notes);
 app.listen(PORT, ()=> {
@@ -159,4 +161,4 @@ app.get('/assignatura/:id', jwtAuth.authenticateJWT, (req, res)=>{
             })
         }
     })
-})
+});
