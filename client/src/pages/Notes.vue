@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary window-height window-width row justify-center items-center">
     <div class="column">
-      <q-card square bordered class="q-pa-sm shadow-1" style="width:300px">
+      <q-card v-if="assignatures.length" square bordered class="q-pa-sm shadow-1" style="width:300px">
         <q-list class="q-gutter-md" bordered separator>
           <q-item
           @click="toAssig(num_assig)"
@@ -23,6 +23,9 @@
           </q-item>
         </q-list>
       </q-card>
+      <div v-else class="text-h5 text-primary text-center absolute-center">
+        No hi han assignatures per a mostrar
+      </div>
     </div>
   </q-page>
 </template>
@@ -30,12 +33,22 @@
 import { Loading } from 'quasar'
 export default {
   preFetch ({ store, redirect }) {
+    Loading.show()
     if (!store.state.showcase.user.token) { // SI NO ESTEM LOGUEJATS
+      Loading.hide()
       redirect({ path: 'login' }) // REDIRECCIONEM A LOGIN
-    } else { // PER ARA SOLS FUNCIONA ACTUALITZANT I TAMBÉ ESTARÍA BÉ FER UNA COMPROVACIÓ JA QUE SI ASSIGNATURES JA ESTÀ EMPLENAT NO VOLEM TORNAR A CARREGAR DADES
-      Loading.show()
-      const direccio = store.state.showcase.user.role === 'alumne' ? 'notes' : 'moduls'
-      store.dispatch('showcase/getAssigs', direccio).then(res => Loading.hide()).catch((err) => console.log(err))
+    } else {
+      if (!store.state.showcase.user.assignatures) { // SI JA ESTÀN CARREGADES LES ASSIGNATURES, NO TORNES A CARREGAR-LES
+        const direccio = store.state.showcase.user.role === 'alumne' ? 'notes' : 'moduls'
+        return store.dispatch('showcase/getAssigs', direccio)
+          .then(res => Loading.hide())
+          .catch((err) => {
+            console.log(err)
+            Loading.hide()
+          })
+      } else {
+        Loading.hide()
+      }
     }
   },
   name: 'Notes',
