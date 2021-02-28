@@ -1,6 +1,9 @@
 <template>
   <q-page class="bg-secondary window-height window-width row justify-center items-center">
     <div class="column">
+      <h1 class="text-h3 text-primary text-center absolute-top">
+        Assignatures
+      </h1>
       <q-card v-if="assignatures.length" square bordered class="q-pa-sm shadow-1" style="width:300px">
         <q-list class="q-gutter-md" bordered separator>
           <q-item
@@ -8,7 +11,7 @@
           clickable
           v-ripple
           v-for="(assig, num_assig) in assignatures"
-          :key="assig.cod_assig">
+          :key="assig.id_assig">
             <q-item-section avatar>
               <q-icon v-if="isAlumne" color="primary" name="find_in_page" />
               <q-icon v-else color="primary" name="edit" />
@@ -52,6 +55,11 @@ export default {
     }
   },
   name: 'Notes',
+  data () {
+    return {
+      confirm: false
+    }
+  },
   computed: {
     isAlumne () {
       return this.userRole === 'alumne'
@@ -69,8 +77,15 @@ export default {
   },
   methods: {
     toAssig (numAssig) { // Deixe aço implementat PER SI ACÀS
-      console.log(this.assignatures[numAssig].links.get)
-      this.$router.push(this.assignatures[numAssig])
+      if (!this.isAlumne) {
+        this.$store.dispatch('showcase/getProfeAssig', this.assignatures[numAssig].id_assig)
+          .then(res => {
+            this.$router.push('/moduls')
+          })
+          .catch(err => {
+            console.error(err)
+          })
+      }
     }
   }
 }

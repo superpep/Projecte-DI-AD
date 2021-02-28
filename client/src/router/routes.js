@@ -9,7 +9,8 @@ const routes = [
       { path: 'register', component: () => import('pages/Register.vue') },
       { path: 'welcome', component: () => import('pages/Welcome.vue') },
       { path: 'notes', component: () => import('pages/Notes.vue') },
-      { path: 'logout', component: () => import('pages/Logout.vue') }
+      { path: 'logout', component: () => import('pages/Logout.vue') },
+      { path: 'moduls', component: () => import('pages/Moduls.vue') }
     ]
   },
 

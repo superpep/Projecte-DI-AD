@@ -43,3 +43,32 @@ export function getAssigs ({ commit }, direccio) {
       })
   })
 }
+
+export function getProfeAssig ({ commit }, assigId) {
+  return new Promise((resolve, reject) => {
+    api.get('/moduls/' + assigId)
+      .then((response) => {
+        commit('getAlumnes', response.data.data)
+        resolve()
+      })
+      .catch((err) => {
+        reject(err.toString())
+      })
+  })
+}
+
+export function setNewNota ({ commit, state }, data) {
+  const { nota, numAlu } = data
+  const idAssig = state.user.alumnes[numAlu].id_assig
+  const idAlu = state.user.alumnes[numAlu].id_alumne
+  return new Promise((resolve, reject) => {
+    api.put('/moduls/' + idAssig + '/' + idAlu, { nota: nota })
+      .then((response) => {
+        commit('commitNewNota', { nota, numAlu })
+        resolve(nota)
+      })
+      .catch((err) => {
+        reject(err.toString())
+      })
+  })
+}

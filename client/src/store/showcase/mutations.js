@@ -32,5 +32,17 @@ export const logout = (state) => {
 }
 
 export const updateNotes = (state, data) => {
+  console.log(data)
   state.user.assignatures = data
+}
+
+export const getAlumnes = (state, data) => {
+  console.log(data)
+  state.user.alumnes = data
+}
+
+export const commitNewNota = (state, data) => {
+  const { numAlu, nota } = data
+  console.log(nota)
+  state.user.alumnes[numAlu].nota = nota
 }
