@@ -42,7 +42,7 @@ router.put('/:id_assig/:id_alu', jwtAuth.authenticateJWT, jwtAuth.authorizeProfe
     crudNot = new crudNotes();
     crudNot.setNotesToAlu(req.params.id_assig, req.params.id_alu, req.user.user_id, req.body.nota, (err, changes)=>{
         if(err){
-            res.status(400).send({
+            res.status(500).send({
                 ok: false,
                 error: err
             })
