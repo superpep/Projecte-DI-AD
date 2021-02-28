@@ -94,7 +94,7 @@ app.post('/login', (req, res)=>{
     let crudUs = new crudUsers(); 
     crudUs.getUserAuth(username, password, (err,user)=>{    
         if(err){ // Tenim en compte si ha habut un error a la BD
-            res.status(401).send({
+            res.status(500).send({
                 ok: false,
                 error: err
             });
