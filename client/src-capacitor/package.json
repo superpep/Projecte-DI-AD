@@ -1,0 +1,12 @@
+{
+  "name": "client",
+  "version": "0.0.1",
+  "description": "A quasar quali apps",
+  "author": "Àlex <alexcrafteo1@outlook.es>",
+  "private": true,
+  "dependencies": {
+    "@capacitor/cli": "^2.0.0",
+    "@capacitor/core": "^2.0.0",
+    "@capacitor/ios": "^2.4.7"
+  }
+}
